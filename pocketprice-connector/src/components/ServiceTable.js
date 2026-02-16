@@ -1,14 +1,13 @@
 /**
  * ServiceTable component — displays services as a table.
  */
-import { __ } from '@wordpress/i18n';
 import { formatPrice } from '../utils';
 
-export default function ServiceTable( { services, title, showDescription, showDuration } ) {
+export default function ServiceTable( { services, title, showDescription } ) {
 	if ( ! services || services.length === 0 ) {
 		return (
 			<p className="pocketprice-notice">
-				{ __( 'No services to display.', 'pocketprice-connector' ) }
+				Нет услуг для отображения.
 			</p>
 		);
 	}
@@ -21,14 +20,11 @@ export default function ServiceTable( { services, title, showDescription, showDu
 			<table className="pocketprice-table">
 				<thead>
 					<tr>
-						<th>{ __( 'Service', 'pocketprice-connector' ) }</th>
+						<th>Услуга</th>
 						{ showDescription && (
-							<th>{ __( 'Description', 'pocketprice-connector' ) }</th>
+							<th>Описание</th>
 						) }
-						{ showDuration && (
-							<th>{ __( 'Duration', 'pocketprice-connector' ) }</th>
-						) }
-						<th>{ __( 'Price', 'pocketprice-connector' ) }</th>
+						<th>Стоимость</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -40,13 +36,6 @@ export default function ServiceTable( { services, title, showDescription, showDu
 							{ showDescription && (
 								<td className="pocketprice-table__desc">
 									{ service.description || '\u2014' }
-								</td>
-							) }
-							{ showDuration && (
-								<td className="pocketprice-table__duration">
-									{ service.duration
-										? `${ service.duration } min`
-										: '\u2014' }
 								</td>
 							) }
 							<td className="pocketprice-table__price">

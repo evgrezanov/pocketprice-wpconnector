@@ -44,44 +44,44 @@ class PocketPrice_Blocks {
 		$service_id = $attributes['serviceId'] ?? '';
 
 		if ( empty( $service_id ) ) {
-			return '<p class="pocketprice-notice">' . esc_html__( 'Select a service to display.', 'pocketprice-connector' ) . '</p>';
+			return '<p class="pocketprice-notice">' . esc_html__( 'Выберите услугу для отображения.', 'pocketprice-connector' ) . '</p>';
 		}
 
 		$service = $this->cache->get_service( $service_id );
 
 		if ( ! $service ) {
-			return '<p class="pocketprice-notice">' . esc_html__( 'Service not found.', 'pocketprice-connector' ) . '</p>';
+			return '<p class="pocketprice-notice">' . esc_html__( 'Услуга не найдена.', 'pocketprice-connector' ) . '</p>';
 		}
 
 		return $this->render_service_card( $service, $attributes );
 	}
 
 	/**
-	 * Render: services by category as table.
+	 * Render: services by subcategory as table.
 	 */
 	public function render_service_category( array $attributes ): string {
-		$category_id = $attributes['categoryId'] ?? '';
+		$subcategory_id = $attributes['subcategoryId'] ?? '';
 
-		if ( empty( $category_id ) ) {
-			return '<p class="pocketprice-notice">' . esc_html__( 'Select a category to display.', 'pocketprice-connector' ) . '</p>';
+		if ( empty( $subcategory_id ) ) {
+			return '<p class="pocketprice-notice">' . esc_html__( 'Выберите подкатегорию для отображения.', 'pocketprice-connector' ) . '</p>';
 		}
 
-		$services   = $this->cache->get_services_by_category( $category_id );
-		$categories = $this->cache->get_categories();
+		$services      = $this->cache->get_services_by_subcategory( $subcategory_id );
+		$subcategories = $this->cache->get_subcategories();
 
-		$category_name = '';
-		foreach ( $categories as $cat ) {
-			if ( ( $cat['id'] ?? '' ) === $category_id ) {
-				$category_name = $cat['name'] ?? '';
+		$subcat_name = '';
+		foreach ( $subcategories as $sc ) {
+			if ( ( $sc['id'] ?? '' ) === $subcategory_id ) {
+				$subcat_name = $sc['name_ru'] ?? '';
 				break;
 			}
 		}
 
 		if ( empty( $services ) ) {
-			return '<p class="pocketprice-notice">' . esc_html__( 'No services found in this category.', 'pocketprice-connector' ) . '</p>';
+			return '<p class="pocketprice-notice">' . esc_html__( 'Нет услуг в этой подкатегории.', 'pocketprice-connector' ) . '</p>';
 		}
 
-		return $this->render_services_table( $services, $category_name, $attributes );
+		return $this->render_services_table( $services, $subcat_name, $attributes );
 	}
 
 	/**
@@ -91,16 +91,25 @@ class PocketPrice_Blocks {
 		$services = $this->cache->get_services();
 
 		if ( empty( $services ) ) {
-			return '<p class="pocketprice-notice">' . esc_html__( 'No services available.', 'pocketprice-connector' ) . '</p>';
+			return '<p class="pocketprice-notice">' . esc_html__( 'Нет доступных услуг.', 'pocketprice-connector' ) . '</p>';
 		}
 
-		$show_categories = $attributes['groupByCategory'] ?? true;
+		$group_by = $attributes['groupByCategory'] ?? true;
+		$show_notes = $attributes['showNotes'] ?? false;
 
-		if ( $show_categories ) {
-			return $this->render_grouped_collection( $services, $attributes );
+		$html = '';
+
+		if ( $show_notes ) {
+			$html .= $this->render_meta_notes();
 		}
 
-		return $this->render_services_table( $services, '', $attributes );
+		if ( $group_by ) {
+			$html .= $this->render_grouped_collection( $services, $attributes );
+		} else {
+			$html .= $this->render_services_table( $services, '', $attributes );
+		}
+
+		return $html;
 	}
 
 	/**
@@ -125,8 +134,7 @@ class PocketPrice_Blocks {
 		if ( ! empty( $service['duration'] ) ) {
 			$html .= '<span class="pocketprice-service-card__duration">'
 				. sprintf(
-					/* translators: %d: duration in minutes */
-					esc_html__( '%d min', 'pocketprice-connector' ),
+					esc_html__( '%d мин', 'pocketprice-connector' ),
 					absint( $service['duration'] )
 				)
 				. '</span>';
@@ -145,7 +153,6 @@ class PocketPrice_Blocks {
 	private function render_services_table( array $services, string $title, array $attributes ): string {
 		$wrapper   = get_block_wrapper_attributes( [ 'class' => 'pocketprice-services-table' ] );
 		$show_desc = $attributes['showDescription'] ?? false;
-		$show_dur  = $attributes['showDuration'] ?? true;
 
 		$html = '<div ' . $wrapper . '>';
 
@@ -155,14 +162,11 @@ class PocketPrice_Blocks {
 
 		$html .= '<table class="pocketprice-table">';
 		$html .= '<thead><tr>';
-		$html .= '<th>' . esc_html__( 'Service', 'pocketprice-connector' ) . '</th>';
+		$html .= '<th>' . esc_html__( 'Услуга', 'pocketprice-connector' ) . '</th>';
 		if ( $show_desc ) {
-			$html .= '<th>' . esc_html__( 'Description', 'pocketprice-connector' ) . '</th>';
+			$html .= '<th>' . esc_html__( 'Описание', 'pocketprice-connector' ) . '</th>';
 		}
-		if ( $show_dur ) {
-			$html .= '<th>' . esc_html__( 'Duration', 'pocketprice-connector' ) . '</th>';
-		}
-		$html .= '<th>' . esc_html__( 'Price', 'pocketprice-connector' ) . '</th>';
+		$html .= '<th>' . esc_html__( 'Стоимость', 'pocketprice-connector' ) . '</th>';
 		$html .= '</tr></thead>';
 
 		$html .= '<tbody>';
@@ -171,12 +175,6 @@ class PocketPrice_Blocks {
 			$html .= '<td class="pocketprice-table__name">' . esc_html( $service['name'] ?? '' ) . '</td>';
 			if ( $show_desc ) {
 				$html .= '<td class="pocketprice-table__desc">' . esc_html( $service['description'] ?? '' ) . '</td>';
-			}
-			if ( $show_dur ) {
-				$dur = ! empty( $service['duration'] )
-					? sprintf( esc_html__( '%d min', 'pocketprice-connector' ), absint( $service['duration'] ) )
-					: '&mdash;';
-				$html .= '<td class="pocketprice-table__duration">' . $dur . '</td>';
 			}
 			$html .= '<td class="pocketprice-table__price">' . $this->format_price( $service ) . '</td>';
 			$html .= '</tr>';
@@ -187,26 +185,26 @@ class PocketPrice_Blocks {
 	}
 
 	/**
-	 * HTML: grouped by category collection.
+	 * HTML: grouped by subcategory collection.
 	 */
 	private function render_grouped_collection( array $services, array $attributes ): string {
-		$categories = $this->cache->get_categories();
-		$wrapper    = get_block_wrapper_attributes( [ 'class' => 'pocketprice-collection' ] );
+		$subcategories = $this->cache->get_subcategories();
+		$wrapper       = get_block_wrapper_attributes( [ 'class' => 'pocketprice-collection' ] );
 
-		// Group services by category.
-		$grouped = [];
-		$cat_map = [];
+		// Group services by subcategory.
+		$grouped    = [];
+		$subcat_map = [];
 
-		foreach ( $categories as $cat ) {
-			$cat_map[ $cat['id'] ] = $cat['name'] ?? '';
-			$grouped[ $cat['id'] ] = [];
+		foreach ( $subcategories as $sc ) {
+			$subcat_map[ $sc['id'] ] = $sc['name_ru'] ?? '';
+			$grouped[ $sc['id'] ]    = [];
 		}
 
 		$uncategorized = [];
 		foreach ( $services as $service ) {
-			$cid = $service['category_id'] ?? '';
-			if ( ! empty( $cid ) && isset( $grouped[ $cid ] ) ) {
-				$grouped[ $cid ][] = $service;
+			$scid = $service['subcategory'] ?? '';
+			if ( ! empty( $scid ) && isset( $grouped[ $scid ] ) ) {
+				$grouped[ $scid ][] = $service;
 			} else {
 				$uncategorized[] = $service;
 			}
@@ -214,13 +212,13 @@ class PocketPrice_Blocks {
 
 		$html = '<div ' . $wrapper . '>';
 
-		foreach ( $grouped as $cid => $cat_services ) {
-			if ( empty( $cat_services ) ) {
+		foreach ( $grouped as $scid => $sc_services ) {
+			if ( empty( $sc_services ) ) {
 				continue;
 			}
 			$html .= $this->render_services_table(
-				$cat_services,
-				$cat_map[ $cid ] ?? '',
+				$sc_services,
+				$subcat_map[ $scid ] ?? '',
 				$attributes
 			);
 		}
@@ -228,9 +226,30 @@ class PocketPrice_Blocks {
 		if ( ! empty( $uncategorized ) ) {
 			$html .= $this->render_services_table(
 				$uncategorized,
-				__( 'Other', 'pocketprice-connector' ),
+				__( 'Прочие', 'pocketprice-connector' ),
 				$attributes
 			);
+		}
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * HTML: meta notes block.
+	 */
+	private function render_meta_notes(): string {
+		$meta = $this->cache->get_meta();
+
+		if ( empty( $meta['notes'] ) || ! is_array( $meta['notes'] ) ) {
+			return '';
+		}
+
+		$html = '<div class="pocketprice-meta-notes">';
+
+		foreach ( $meta['notes'] as $note ) {
+			$html .= '<p class="pocketprice-meta-notes__item">' . esc_html( $note ) . '</p>';
 		}
 
 		$html .= '</div>';
@@ -242,11 +261,29 @@ class PocketPrice_Blocks {
 	 * Format price display.
 	 */
 	private function format_price( array $service ): string {
-		$price     = $service['price'] ?? 0;
-		$price_max = $service['price_max'] ?? null;
-		$currency  = $service['currency'] ?? 'RUB';
+		$price      = $service['price'] ?? 0;
+		$price_max  = $service['price_max'] ?? null;
+		$price_unit = $service['price_unit'] ?? null;
+		$price_note = $service['price_note'] ?? null;
+		$is_active  = $service['is_active'] ?? true;
+		$currency   = $service['currency'] ?? 'RUB';
+
+		// "По запросу" for inactive services or zero-priced.
+		if ( ! $is_active || ( 0 === (int) $price && empty( $price_max ) ) ) {
+			return '<span class="pocketprice-price--request">' . esc_html__( 'По запросу', 'pocketprice-connector' ) . '</span>';
+		}
+
+		// If price_note exists, use it directly.
+		if ( ! empty( $price_note ) ) {
+			return esc_html( $price_note );
+		}
 
 		$symbol = 'RUB' === $currency ? '&#8381;' : esc_html( $currency );
+
+		// If custom price_unit (e.g. "руб./км").
+		if ( ! empty( $price_unit ) ) {
+			return number_format( $price, 0, ',', ' ' ) . ' ' . esc_html( $price_unit );
+		}
 
 		if ( $price_max && $price_max > $price ) {
 			return sprintf( '%s &ndash; %s %s',

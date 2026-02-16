@@ -44,6 +44,18 @@ class PocketPrice_REST {
 			'permission_callback' => [ $this, 'editor_permission' ],
 		] );
 
+		register_rest_route( self::NAMESPACE, '/subcategories', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_subcategories' ],
+			'permission_callback' => [ $this, 'editor_permission' ],
+		] );
+
+		register_rest_route( self::NAMESPACE, '/meta', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'get_meta' ],
+			'permission_callback' => [ $this, 'editor_permission' ],
+		] );
+
 		register_rest_route( self::NAMESPACE, '/sync', [
 			'methods'             => 'POST',
 			'callback'            => [ $this, 'sync' ],
@@ -81,6 +93,16 @@ class PocketPrice_REST {
 	public function get_categories(): WP_REST_Response {
 		$categories = $this->cache->get_categories();
 		return new WP_REST_Response( $categories, 200 );
+	}
+
+	public function get_subcategories(): WP_REST_Response {
+		$subcategories = $this->cache->get_subcategories();
+		return new WP_REST_Response( $subcategories, 200 );
+	}
+
+	public function get_meta(): WP_REST_Response {
+		$meta = $this->cache->get_meta();
+		return new WP_REST_Response( $meta, 200 );
 	}
 
 	public function sync(): WP_REST_Response {

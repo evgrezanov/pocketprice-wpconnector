@@ -1,7 +1,6 @@
 /**
  * Editor component for Service Collection block (all services).
  */
-import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, Spinner } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
@@ -9,21 +8,24 @@ import apiFetch from '@wordpress/api-fetch';
 import ServiceTable from '../../components/ServiceTable';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { groupByCategory, showDescription, showDuration } = attributes;
+	const { groupByCategory, showDescription, showNotes } = attributes;
 	const blockProps = useBlockProps( { className: 'pocketprice-collection' } );
 
 	const [ services, setServices ] = useState( [] );
-	const [ categories, setCategories ] = useState( [] );
+	const [ subcategories, setSubcategories ] = useState( [] );
+	const [ meta, setMeta ] = useState( {} );
 	const [ loading, setLoading ] = useState( true );
 
 	useEffect( () => {
 		Promise.all( [
 			apiFetch( { path: '/pocketprice/v1/services' } ),
-			apiFetch( { path: '/pocketprice/v1/categories' } ),
+			apiFetch( { path: '/pocketprice/v1/subcategories' } ),
+			apiFetch( { path: '/pocketprice/v1/meta' } ),
 		] )
-			.then( ( [ svcData, catData ] ) => {
+			.then( ( [ svcData, subcatData, metaData ] ) => {
 				setServices( svcData || [] );
-				setCategories( catData || [] );
+				setSubcategories( subcatData || [] );
+				setMeta( metaData || {} );
 				setLoading( false );
 			} )
 			.catch( () => {
@@ -32,16 +34,16 @@ export default function Edit( { attributes, setAttributes } ) {
 	}, [] );
 
 	const renderGrouped = () => {
-		const catMap = {};
-		categories.forEach( ( c ) => {
-			catMap[ c.id ] = { name: c.name, services: [] };
+		const subcatMap = {};
+		subcategories.forEach( ( sc ) => {
+			subcatMap[ sc.id ] = { name: sc.name_ru, services: [] };
 		} );
 
 		const uncategorized = [];
 
 		services.forEach( ( s ) => {
-			if ( s.category_id && catMap[ s.category_id ] ) {
-				catMap[ s.category_id ].services.push( s );
+			if ( s.subcategory && subcatMap[ s.subcategory ] ) {
+				subcatMap[ s.subcategory ].services.push( s );
 			} else {
 				uncategorized.push( s );
 			}
@@ -49,7 +51,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 		return (
 			<>
-				{ Object.values( catMap ).map(
+				{ Object.values( subcatMap ).map(
 					( group ) =>
 						group.services.length > 0 && (
 							<ServiceTable
@@ -57,45 +59,58 @@ export default function Edit( { attributes, setAttributes } ) {
 								services={ group.services }
 								title={ group.name }
 								showDescription={ showDescription }
-								showDuration={ showDuration }
 							/>
 						)
 				) }
 				{ uncategorized.length > 0 && (
 					<ServiceTable
 						services={ uncategorized }
-						title={ __( 'Other', 'pocketprice-connector' ) }
+						title="Прочие"
 						showDescription={ showDescription }
-						showDuration={ showDuration }
 					/>
 				) }
 			</>
 		);
 	};
 
+	const renderNotes = () => {
+		if ( ! meta.notes || ! Array.isArray( meta.notes ) ) {
+			return null;
+		}
+		return (
+			<div className="pocketprice-meta-notes">
+				{ meta.notes.map( ( note, i ) => (
+					<p key={ i } className="pocketprice-meta-notes__item">
+						{ note }
+					</p>
+				) ) }
+			</div>
+		);
+	};
+
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Display Settings', 'pocketprice-connector' ) }>
+				<PanelBody title="Настройки отображения">
 					<ToggleControl
-						label={ __( 'Group by category', 'pocketprice-connector' ) }
+						label="Группировать по подкатегориям"
 						checked={ groupByCategory }
 						onChange={ ( val ) =>
 							setAttributes( { groupByCategory: val } )
 						}
 					/>
 					<ToggleControl
-						label={ __( 'Show description', 'pocketprice-connector' ) }
+						label="Показать описание"
 						checked={ showDescription }
 						onChange={ ( val ) =>
 							setAttributes( { showDescription: val } )
 						}
 					/>
 					<ToggleControl
-						label={ __( 'Show duration', 'pocketprice-connector' ) }
-						checked={ showDuration }
+						label="Показать примечания"
+						checked={ showNotes }
 						onChange={ ( val ) =>
-							setAttributes( { showDuration: val } )
+							setAttributes( { showNotes: val } )
 						}
 					/>
 				</PanelBody>
@@ -106,22 +121,24 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ ! loading && services.length === 0 && (
 					<p className="pocketprice-notice">
-						{ __(
-							'No services available. Check Pocket Price settings and sync data.',
-							'pocketprice-connector'
-						) }
+						Нет доступных услуг. Проверьте настройки Pocket Price и синхронизируйте данные.
 					</p>
 				) }
 
-				{ ! loading && services.length > 0 && groupByCategory && renderGrouped() }
-
-				{ ! loading && services.length > 0 && ! groupByCategory && (
-					<ServiceTable
-						services={ services }
-						title=""
-						showDescription={ showDescription }
-						showDuration={ showDuration }
-					/>
+				{ ! loading && services.length > 0 && (
+					<>
+						{ showNotes && renderNotes() }
+						{ groupByCategory
+							? renderGrouped()
+							: (
+								<ServiceTable
+									services={ services }
+									title=""
+									showDescription={ showDescription }
+								/>
+							)
+						}
+					</>
 				) }
 			</div>
 		</>

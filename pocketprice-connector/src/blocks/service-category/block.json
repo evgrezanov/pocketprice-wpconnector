@@ -3,28 +3,24 @@
 	"apiVersion": 3,
 	"name": "pocketprice/service-category",
 	"version": "1.0.0",
-	"title": "Pocket Price: Category",
+	"title": "Pocket Price: Подкатегория",
 	"category": "widgets",
 	"icon": "category",
-	"description": "Display services from a specific category as a price table.",
-	"keywords": [ "price", "category", "pocket", "table" ],
+	"description": "Таблица услуг из выбранной подкатегории.",
+	"keywords": [ "price", "category", "pocket", "table", "эвакуатор" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ]
 	},
 	"textdomain": "pocketprice-connector",
 	"attributes": {
-		"categoryId": {
+		"subcategoryId": {
 			"type": "string",
 			"default": ""
 		},
 		"showDescription": {
 			"type": "boolean",
 			"default": false
-		},
-		"showDuration": {
-			"type": "boolean",
-			"default": true
 		}
 	},
 	"editorScript": "file:./index.js",

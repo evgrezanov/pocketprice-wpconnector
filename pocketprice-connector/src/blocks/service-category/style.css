@@ -48,14 +48,15 @@
 	white-space: nowrap;
 }
 
-.pocketprice-table__duration {
-	color: #888;
-	white-space: nowrap;
-}
-
 .pocketprice-table__desc {
 	color: #555;
 	font-size: 0.9rem;
+}
+
+.pocketprice-price--request {
+	color: #999;
+	font-style: italic;
+	font-weight: 400;
 }
 
 .pocketprice-notice {

@@ -73,6 +73,47 @@ final class PocketPrice_Connector {
 				'cron_interval'  => 'hourly',
 			] );
 		}
+
+		$this->import_seed_data();
+	}
+
+	/**
+	 * Import seed data from JSON file into WordPress options.
+	 */
+	private function import_seed_data(): void {
+		// Skip if data already imported.
+		if ( get_option( 'pocketprice_services_fallback' ) ) {
+			return;
+		}
+
+		$json_file = POCKETPRICE_PLUGIN_DIR . 'mock-data/evacuator-price-data.json';
+
+		if ( ! file_exists( $json_file ) ) {
+			return;
+		}
+
+		$raw  = file_get_contents( $json_file );
+		$data = json_decode( $raw, true );
+
+		if ( ! is_array( $data ) ) {
+			return;
+		}
+
+		$services      = $data['services'] ?? [];
+		$categories    = $data['categories'] ?? [];
+		$subcategories = $data['subcategories'] ?? [];
+		$meta          = $data['meta'] ?? [];
+
+		update_option( 'pocketprice_services_fallback', $services, false );
+		update_option( 'pocketprice_categories_fallback', $categories, false );
+		update_option( 'pocketprice_subcategories_fallback', $subcategories, false );
+		update_option( 'pocketprice_meta', $meta, false );
+
+		// Also set transients so data is immediately available.
+		$ttl = 3600;
+		set_transient( 'pocketprice_services', $services, $ttl );
+		set_transient( 'pocketprice_categories', $categories, $ttl );
+		set_transient( 'pocketprice_subcategories', $subcategories, $ttl );
 	}
 
 	public function deactivate(): void {

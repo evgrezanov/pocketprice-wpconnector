@@ -24,7 +24,7 @@ export default function ServiceCard( { service } ) {
 				</span>
 				{ service.duration > 0 && (
 					<span className="pocketprice-service-card__duration">
-						{ service.duration } min
+						{ service.duration } мин
 					</span>
 				) }
 			</div>

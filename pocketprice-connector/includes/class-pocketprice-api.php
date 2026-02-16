@@ -13,7 +13,7 @@ class PocketPrice_API {
 		return wp_parse_args(
 			get_option( 'pocketprice_settings', [] ),
 			[
-				'api_url'   => 'https://api.pocketprice.ru',
+				'api_url'   => 'https://api.pocketprice.work',
 				'api_key'   => '',
 				'cache_ttl' => 3600,
 			]
@@ -102,24 +102,60 @@ class PocketPrice_API {
 	}
 
 	/**
+	 * Get all records from a PocketBase collection, handling pagination.
+	 *
+	 * @param string $collection Collection name.
+	 * @param array  $args       Optional query parameters (filter, sort, etc).
+	 * @return array|WP_Error    All items or WP_Error.
+	 */
+	public function get_all_records( string $collection, array $args = [] ) {
+		$args = array_merge( [ 'perPage' => 500 ], $args );
+		$page = 1;
+		$all_items = [];
+
+		do {
+			$args['page'] = $page;
+			$data = $this->request( '/api/collections/' . $collection . '/records', $args );
+
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+
+			$items = $data['items'] ?? [];
+			$all_items = array_merge( $all_items, $items );
+			$total_pages = $data['totalPages'] ?? 1;
+			$page++;
+		} while ( $page <= $total_pages );
+
+		return $all_items;
+	}
+
+	/**
 	 * Get all services.
 	 */
 	public function get_services( array $args = [] ) {
-		return $this->request( '/api/services', $args );
+		return $this->get_all_records( 'services', $args );
 	}
 
 	/**
 	 * Get a single service by ID.
 	 */
 	public function get_service( string $id ) {
-		return $this->request( '/api/services/' . sanitize_text_field( $id ) );
+		return $this->request( '/api/collections/services/records/' . sanitize_text_field( $id ) );
 	}
 
 	/**
 	 * Get all categories.
 	 */
 	public function get_categories( array $args = [] ) {
-		return $this->request( '/api/categories', $args );
+		return $this->get_all_records( 'categories', $args );
+	}
+
+	/**
+	 * Get all subcategories.
+	 */
+	public function get_subcategories( array $args = [] ) {
+		return $this->get_all_records( 'subcategories', $args );
 	}
 
 	/**

@@ -1,11 +1,11 @@
 {
-  "id": "pbc_3292755704",
-  "listRule": "@request.auth.id != \"\"",
-  "viewRule": "@request.auth.id != \"\"",
-  "createRule": "@request.auth.id != \"\"",
-  "updateRule": "user = @request.auth.id",
-  "deleteRule": "user = @request.auth.id",
-  "name": "categories",
+  "id": "pbc_3577178630",
+  "listRule": "@request.auth.id = user",
+  "viewRule": "@request.auth.id = user",
+  "createRule": "@request.auth.id = user",
+  "updateRule": "@request.auth.id = user",
+  "deleteRule": "@request.auth.id = user",
+  "name": "api_keys",
   "type": "base",
   "fields": [
     {
@@ -23,97 +23,6 @@
       "type": "text"
     },
     {
-      "autogeneratePattern": "",
-      "hidden": false,
-      "id": "text2995877822",
-      "max": 0,
-      "min": 0,
-      "name": "name_ru",
-      "pattern": "",
-      "presentable": false,
-      "primaryKey": false,
-      "required": false,
-      "system": false,
-      "type": "text"
-    },
-    {
-      "autogeneratePattern": "",
-      "hidden": false,
-      "id": "text1031224004",
-      "max": 0,
-      "min": 0,
-      "name": "name_en",
-      "pattern": "",
-      "presentable": false,
-      "primaryKey": false,
-      "required": false,
-      "system": false,
-      "type": "text"
-    },
-    {
-      "autogeneratePattern": "",
-      "hidden": false,
-      "id": "text2560465762",
-      "max": 0,
-      "min": 0,
-      "name": "slug",
-      "pattern": "",
-      "presentable": false,
-      "primaryKey": false,
-      "required": false,
-      "system": false,
-      "type": "text"
-    },
-    {
-      "autogeneratePattern": "",
-      "hidden": false,
-      "id": "text1704208859",
-      "max": 0,
-      "min": 0,
-      "name": "icon",
-      "pattern": "",
-      "presentable": false,
-      "primaryKey": false,
-      "required": false,
-      "system": false,
-      "type": "text"
-    },
-    {
-      "autogeneratePattern": "",
-      "hidden": false,
-      "id": "text1843675174",
-      "max": 0,
-      "min": 0,
-      "name": "description",
-      "pattern": "",
-      "presentable": false,
-      "primaryKey": false,
-      "required": false,
-      "system": false,
-      "type": "text"
-    },
-    {
-      "hidden": false,
-      "id": "number4113142680",
-      "max": null,
-      "min": null,
-      "name": "order",
-      "onlyInt": false,
-      "presentable": false,
-      "required": false,
-      "system": false,
-      "type": "number"
-    },
-    {
-      "hidden": false,
-      "id": "bool1260321794",
-      "name": "active",
-      "presentable": false,
-      "required": false,
-      "system": false,
-      "type": "bool"
-    },
-    {
       "cascadeDelete": false,
       "collectionId": "_pb_users_auth_",
       "hidden": false,
@@ -125,6 +34,89 @@
       "required": false,
       "system": false,
       "type": "relation"
+    },
+    {
+      "autogeneratePattern": "",
+      "hidden": false,
+      "id": "text2324736937",
+      "max": 0,
+      "min": 0,
+      "name": "key",
+      "pattern": "",
+      "presentable": false,
+      "primaryKey": false,
+      "required": false,
+      "system": false,
+      "type": "text"
+    },
+    {
+      "autogeneratePattern": "",
+      "hidden": false,
+      "id": "text1579384326",
+      "max": 0,
+      "min": 0,
+      "name": "name",
+      "pattern": "",
+      "presentable": false,
+      "primaryKey": false,
+      "required": false,
+      "system": false,
+      "type": "text"
+    },
+    {
+      "hidden": false,
+      "id": "json770559087",
+      "maxSize": 0,
+      "name": "permissions",
+      "presentable": false,
+      "required": false,
+      "system": false,
+      "type": "json"
+    },
+    {
+      "hidden": false,
+      "id": "date4016875332",
+      "max": "",
+      "min": "",
+      "name": "last_used",
+      "presentable": false,
+      "required": false,
+      "system": false,
+      "type": "date"
+    },
+    {
+      "autogeneratePattern": "",
+      "hidden": false,
+      "id": "text2924098531",
+      "max": 0,
+      "min": 0,
+      "name": "last_used_ip",
+      "pattern": "",
+      "presentable": false,
+      "primaryKey": false,
+      "required": false,
+      "system": false,
+      "type": "text"
+    },
+    {
+      "hidden": false,
+      "id": "date261981154",
+      "max": "",
+      "min": "",
+      "name": "expires_at",
+      "presentable": false,
+      "required": false,
+      "system": false,
+      "type": "date"
+    },
+    {
+      "hidden": false,
+      "id": "bool1260321794",
+      "name": "active",
+      "presentable": false,
+      "required": false,
+      "system": false,
+      "type": "bool"
     },
     {
       "hidden": false,
@@ -148,10 +140,9 @@
     }
   ],
   "indexes": [
-    "CREATE UNIQUE INDEX `idx_29qylTqoQV` ON `categories` (`slug`)",
-    "CREATE INDEX `idx_DYtb5hlZ1v` ON `categories` (\n  `active`,\n  `order`\n)"
+    "CREATE UNIQUE INDEX `idx_56TXZx0n4a` ON `api_keys` (`key`)"
   ],
-  "created": "2026-02-11 09:23:06.779Z",
-  "updated": "2026-02-13 21:33:48.328Z",
+  "created": "2026-02-11 09:53:59.726Z",
+  "updated": "2026-02-11 20:55:29.818Z",
   "system": false
 }

@@ -1,7 +1,6 @@
 /**
  * Editor component for Single Service block.
  */
-import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl, Placeholder, Spinner } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
@@ -29,16 +28,19 @@ export default function Edit( { attributes, setAttributes } ) {
 	const selectedService = services.find( ( s ) => s.id === serviceId ) || null;
 
 	const serviceOptions = [
-		{ label: __( '— Select a service —', 'pocketprice-connector' ), value: '' },
-		...services.map( ( s ) => ( { label: s.name, value: s.id } ) ),
+		{ label: '— Выберите услугу —', value: '' },
+		...services.map( ( s ) => ( {
+			label: `${ s.name }`,
+			value: s.id,
+		} ) ),
 	];
 
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Service Settings', 'pocketprice-connector' ) }>
+				<PanelBody title="Настройки услуги">
 					<SelectControl
-						label={ __( 'Select Service', 'pocketprice-connector' ) }
+						label="Выберите услугу"
 						value={ serviceId }
 						options={ serviceOptions }
 						onChange={ ( val ) => setAttributes( { serviceId: val } ) }
@@ -52,11 +54,8 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ ! loading && ! serviceId && (
 					<Placeholder
 						icon="tag"
-						label={ __( 'Pocket Price: Service', 'pocketprice-connector' ) }
-						instructions={ __(
-							'Select a service from the sidebar to display.',
-							'pocketprice-connector'
-						) }
+						label="Pocket Price: Услуга"
+						instructions="Выберите услугу на боковой панели для отображения."
 					>
 						<SelectControl
 							value={ serviceId }
@@ -72,7 +71,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ ! loading && serviceId && ! selectedService && (
 					<p className="pocketprice-notice">
-						{ __( 'Service not found. It may have been removed.', 'pocketprice-connector' ) }
+						Услуга не найдена. Возможно, она была удалена.
 					</p>
 				) }
 			</div>

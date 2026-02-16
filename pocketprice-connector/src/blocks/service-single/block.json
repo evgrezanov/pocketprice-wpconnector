@@ -3,11 +3,11 @@
 	"apiVersion": 3,
 	"name": "pocketprice/service-single",
 	"version": "1.0.0",
-	"title": "Pocket Price: Service",
+	"title": "Pocket Price: Услуга",
 	"category": "widgets",
 	"icon": "tag",
-	"description": "Display a single service from Pocket Price.",
-	"keywords": [ "price", "service", "pocket" ],
+	"description": "Карточка одной услуги из прайс-листа.",
+	"keywords": [ "price", "service", "pocket", "услуга", "эвакуатор" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ]

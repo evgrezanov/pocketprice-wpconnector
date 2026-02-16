@@ -3,11 +3,11 @@
 	"apiVersion": 3,
 	"name": "pocketprice/service-collection",
 	"version": "1.0.0",
-	"title": "Pocket Price: All Services",
+	"title": "Pocket Price: Все услуги",
 	"category": "widgets",
 	"icon": "list-view",
-	"description": "Display all services as a complete price list, optionally grouped by category.",
-	"keywords": [ "price", "services", "pocket", "collection", "all" ],
+	"description": "Полный прайс-лист с группировкой по подкатегориям.",
+	"keywords": [ "price", "services", "pocket", "collection", "all", "прайс" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ]
@@ -22,9 +22,9 @@
 			"type": "boolean",
 			"default": false
 		},
-		"showDuration": {
+		"showNotes": {
 			"type": "boolean",
-			"default": true
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

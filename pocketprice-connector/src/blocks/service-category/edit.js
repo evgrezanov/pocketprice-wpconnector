@@ -1,7 +1,6 @@
 /**
- * Editor component for Service Category block.
+ * Editor component for Service Category (subcategory) block.
  */
-import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -15,21 +14,21 @@ import apiFetch from '@wordpress/api-fetch';
 import ServiceTable from '../../components/ServiceTable';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { categoryId, showDescription, showDuration } = attributes;
+	const { subcategoryId, showDescription } = attributes;
 	const blockProps = useBlockProps( { className: 'pocketprice-services-table' } );
 
 	const [ services, setServices ] = useState( [] );
-	const [ categories, setCategories ] = useState( [] );
+	const [ subcategories, setSubcategories ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 
 	useEffect( () => {
 		Promise.all( [
 			apiFetch( { path: '/pocketprice/v1/services' } ),
-			apiFetch( { path: '/pocketprice/v1/categories' } ),
+			apiFetch( { path: '/pocketprice/v1/subcategories' } ),
 		] )
-			.then( ( [ svcData, catData ] ) => {
+			.then( ( [ svcData, subcatData ] ) => {
 				setServices( svcData || [] );
-				setCategories( catData || [] );
+				setSubcategories( subcatData || [] );
 				setLoading( false );
 			} )
 			.catch( () => {
@@ -37,39 +36,35 @@ export default function Edit( { attributes, setAttributes } ) {
 			} );
 	}, [] );
 
-	const filteredServices = categoryId
-		? services.filter( ( s ) => s.category_id === categoryId )
+	const filteredServices = subcategoryId
+		? services.filter( ( s ) => s.subcategory === subcategoryId )
 		: [];
 
-	const selectedCategory = categories.find( ( c ) => c.id === categoryId );
+	const selectedSubcategory = subcategories.find( ( sc ) => sc.id === subcategoryId );
 
-	const categoryOptions = [
-		{ label: __( '— Select a category —', 'pocketprice-connector' ), value: '' },
-		...categories.map( ( c ) => ( { label: c.name, value: c.id } ) ),
+	const subcategoryOptions = [
+		{ label: '— Выберите подкатегорию —', value: '' },
+		...subcategories.map( ( sc ) => ( {
+			label: sc.name_ru,
+			value: sc.id,
+		} ) ),
 	];
 
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Category Settings', 'pocketprice-connector' ) }>
+				<PanelBody title="Настройки подкатегории">
 					<SelectControl
-						label={ __( 'Select Category', 'pocketprice-connector' ) }
-						value={ categoryId }
-						options={ categoryOptions }
-						onChange={ ( val ) => setAttributes( { categoryId: val } ) }
+						label="Выберите подкатегорию"
+						value={ subcategoryId }
+						options={ subcategoryOptions }
+						onChange={ ( val ) => setAttributes( { subcategoryId: val } ) }
 					/>
 					<ToggleControl
-						label={ __( 'Show description', 'pocketprice-connector' ) }
+						label="Показать описание"
 						checked={ showDescription }
 						onChange={ ( val ) =>
 							setAttributes( { showDescription: val } )
-						}
-					/>
-					<ToggleControl
-						label={ __( 'Show duration', 'pocketprice-connector' ) }
-						checked={ showDuration }
-						onChange={ ( val ) =>
-							setAttributes( { showDuration: val } )
 						}
 					/>
 				</PanelBody>
@@ -78,29 +73,25 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				{ loading && <Spinner /> }
 
-				{ ! loading && ! categoryId && (
+				{ ! loading && ! subcategoryId && (
 					<Placeholder
 						icon="category"
-						label={ __( 'Pocket Price: Category', 'pocketprice-connector' ) }
-						instructions={ __(
-							'Select a category from the sidebar to display its services.',
-							'pocketprice-connector'
-						) }
+						label="Pocket Price: Подкатегория"
+						instructions="Выберите подкатегорию на боковой панели для отображения услуг."
 					>
 						<SelectControl
-							value={ categoryId }
-							options={ categoryOptions }
-							onChange={ ( val ) => setAttributes( { categoryId: val } ) }
+							value={ subcategoryId }
+							options={ subcategoryOptions }
+							onChange={ ( val ) => setAttributes( { subcategoryId: val } ) }
 						/>
 					</Placeholder>
 				) }
 
-				{ ! loading && categoryId && (
+				{ ! loading && subcategoryId && (
 					<ServiceTable
 						services={ filteredServices }
-						title={ selectedCategory?.name || '' }
+						title={ selectedSubcategory?.name_ru || '' }
 						showDescription={ showDescription }
-						showDuration={ showDuration }
 					/>
 				) }
 			</div>
